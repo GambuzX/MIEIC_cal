@@ -13,10 +13,10 @@ int factorialRecurs(int n)
 
 int factorialDinam(int n)
 {
-	vector<int> pre_calc(2, 1);
+	int prev = 1;
 
 	for (int i = 2; i <= n; i++)
-		pre_calc.push_back(i * pre_calc.at(i-1));
+		prev *= i;
 
-	return pre_calc.at(n);
+	return prev;
 }
