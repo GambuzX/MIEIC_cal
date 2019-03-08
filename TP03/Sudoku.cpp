@@ -96,37 +96,60 @@ bool Sudoku::solve()
 {
 	if (isComplete()) return true;
 
+	// find best candidate to insert number
+	int min = 9;
+	int r = 0, c = 0;
+	bool found_one = false;
 	for (int row = 0; row < 9; row++) {
 		for (int col = 0; col < 9; col++)  {
 			// ignore if already has a number
 			if (numbers[row][col] != 0) continue;
 
-			// test all possible numbers
-			bool found_num = false;
+			// Check which numbers can be inserted
+			int curr = 0;
 			for (int num = 1; num <= 9; num++) {
-				// ignore if cant use number
 				if (columnHasNumber[col][num] || lineHasNumber[row][num] || block3x3HasNumber[row/3][col/3][num]) continue;
-
-				// update matrix
-				found_num = true;
-				numbers[row][col] = num;
-				countFilled++;
-
-				// see if good guess
-				bool good_guess = solve();
-
-				// if it is a good guess leave loop
-				if (good_guess) break;
-
-				// go back to previous matrix if bad guess
-				found_num = false;
-				numbers[row][col] = 0;
-				countFilled--;
+				curr++;
 			}
-			return found_num;
+
+			// if found invalid position with current matrix, return false to backtrack
+			if (curr == 0) return false;
+
+			if (curr < min)  {
+				min = curr;
+				r = row;
+				c = col;
+			}
+			if (curr == 1) found_one = true;
 		}
+		if (found_one) break;
 	}
 
+	// insert possible values in found position
+	for (int num = 1; num <= 9; num++) {
+		if (columnHasNumber[c][num] || lineHasNumber[r][c] || block3x3HasNumber[r/3][c/3][num]) continue;
+
+		// update matrix
+		numbers[r][c] = num;
+		columnHasNumber[c][num] = true;
+		lineHasNumber[r][num] = true;
+		block3x3HasNumber[r/3][c/3][num] = true;
+		countFilled++;
+
+		bool good_guess = solve();
+
+		if (good_guess) return true;
+
+		// if not good guess, go back
+		numbers[r][c] = 0;
+		columnHasNumber[c][num] = false;
+		lineHasNumber[r][num] = false;
+		block3x3HasNumber[r/3][c/3][num] = false;
+		countFilled--;
+	}
+
+	// if left loop, did not find number for position.
+	// should not get here!!
 	return false;
 }
 
