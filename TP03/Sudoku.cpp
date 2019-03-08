@@ -130,7 +130,7 @@ bool Sudoku::solve()
 
 	// insert possible values in found position
 	for (int num = 1; num <= 9; num++) {
-		if (columnHasNumber[c][num] || lineHasNumber[r][c] || block3x3HasNumber[r/3][c/3][num]) continue;
+		if (columnHasNumber[c][num] || lineHasNumber[r][num] || block3x3HasNumber[r/3][c/3][num]) continue;
 
 		// update matrix
 		numbers[r][c] = num;
@@ -151,9 +151,7 @@ bool Sudoku::solve()
 		countFilled--;
 	}
 
-	// if left loop, did not find number for position.
-	// should not get here!!
-	cout << "something is really bad\n";
+	// did not find valid number with current values
 	return false;
 }
 
