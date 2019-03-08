@@ -94,9 +94,41 @@ bool Sudoku::isComplete()
  */
 bool Sudoku::solve()
 {
+	if (isComplete()) return true;
+
+	for (int row = 0; row < 9; row++) {
+		for (int col = 0; col < 9; col++)  {
+			// ignore if already has a number
+			if (numbers[row][col] != 0) continue;
+
+			// test all possible numbers
+			bool found_num = false;
+			for (int num = 1; num <= 9; num++) {
+				// ignore if cant use number
+				if (columnHasNumber[col][num] || lineHasNumber[row][num] || block3x3HasNumber[row/3][col/3][num]) continue;
+
+				// update matrix
+				found_num = true;
+				numbers[row][col] = num;
+				countFilled++;
+
+				// see if good guess
+				bool good_guess = solve();
+
+				// if it is a good guess leave loop
+				if (good_guess) break;
+
+				// go back to previous matrix if bad guess
+				found_num = false;
+				numbers[row][col] = 0;
+				countFilled--;
+			}
+			return found_num;
+		}
+	}
+
 	return false;
 }
-
 
 
 /**
