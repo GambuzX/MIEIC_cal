@@ -97,7 +97,7 @@ bool Sudoku::solve()
 	if (isComplete()) return true;
 
 	// find best candidate to insert number
-	int min = 9;
+	int min = 10;
 	int r = 0, c = 0;
 	bool found_one = false;
 	for (int row = 0; row < 9; row++) {
@@ -120,7 +120,10 @@ bool Sudoku::solve()
 				r = row;
 				c = col;
 			}
-			if (curr == 1) found_one = true;
+			if (curr == 1) {
+				found_one = true;
+				break;
+			}
 		}
 		if (found_one) break;
 	}
@@ -150,6 +153,7 @@ bool Sudoku::solve()
 
 	// if left loop, did not find number for position.
 	// should not get here!!
+	cout << "something is really bad\n";
 	return false;
 }
 
