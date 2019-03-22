@@ -295,8 +295,36 @@ vector<T> Graph<T>::topsort() const {
 
 template <class T>
 int Graph<T>::maxNewChildren(const T & source, T &inf) const {
-	// TODO (28 lines, mostly reused)
-	return 0;
+
+	int max_childs = 0;
+	vector<T> res;
+	queue<Vertex<T> *> to_visit;
+
+	for (Vertex<T> * vertex : vertexSet) vertex->visited = false;
+
+	to_visit.push(vertexSet.at(0));
+	vertexSet.at(0)->visited = true;
+
+	while(!to_visit.empty()) {
+		Vertex<T> * next = to_visit.front();
+		to_visit.pop();
+		res.push_back(next->info);
+
+		int new_childs = 0;
+		for(Edge<T> & edge : next->adj) {
+			if (!edge.dest->visited) {
+				to_visit.push(edge.dest);
+				edge.dest->visited = true;
+				new_childs++;
+			}
+		}
+		if (new_childs > max_childs) {
+			max_childs = new_childs;
+			inf = next->info;
+		}
+
+	}
+	return max_childs;
 }
 
 /****************** 3b) isDAG   (HOME WORK)  ********************/
@@ -311,8 +339,18 @@ int Graph<T>::maxNewChildren(const T & source, T &inf) const {
 
 template <class T>
 bool Graph<T>::isDAG() const {
-	// TODO (9 lines, mostly reused)
-	// HINT: use the auxiliary field "processing" to mark the vertices in the stack.
+	for (Vertex<T>* vertex : vertexSet) {
+		vertex->visited = false;
+		vertex->processing = false;
+	}
+	for (Edge<T>& edge : vertexSet.at(0)->adj) {
+		if (edge.dest->processing) return false;
+
+		if (!edge.dest->visited) {
+			edge.dest->processing = true;
+			if (!dfsIsDAG(edge.dest)) return false;
+		}
+	}
 	return true;
 }
 
@@ -322,7 +360,16 @@ bool Graph<T>::isDAG() const {
  */
 template <class T>
 bool Graph<T>::dfsIsDAG(Vertex<T> *v) const {
-	// TODO (12 lines, mostly reused)
+	v->visited = true;
+
+	for (Edge<T>& edge : v->adj) {
+		if (edge.dest->processing) return false;
+		if (!edge.dest->visited) {
+			edge.dest->processing = true;
+			if (!dfsIsDAG(edge.dest)) return false;
+		}
+	}
+
 	return true;
 }
 

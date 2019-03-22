@@ -238,8 +238,8 @@ bool runAllTests(int argc, char const *argv[]) {
 	s.push_back(CUTE(test_removeEdge_Again));
 	s.push_back(CUTE(test_bfs));
 	s.push_back(CUTE(test_topsort));
-	//s.push_back(CUTE(test_maxNewChildren));
-	//s.push_back(CUTE(test_isDAG));
+	s.push_back(CUTE(test_maxNewChildren));
+	s.push_back(CUTE(test_isDAG));
 
 	cute::xml_file_opener xmlfile(argc, argv);
 	cute::xml_listener<cute::ide_listener<>> lis(xmlfile.out);
