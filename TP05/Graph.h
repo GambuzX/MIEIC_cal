@@ -134,9 +134,6 @@ void Vertex<T>::addEdge(Vertex<T> *d, double w) {
  */
 template <class T>
 bool Graph<T>::removeEdge(const T &sourc, const T &dest) {
-	// TODO (5 lines)
-	// HINT: Use "findVertex" to obtain the actual vertices.
-	// HINT: Use the next function to actually remove the edge.{
 	Vertex<T> * src = findVertex(sourc);
 	Vertex<T> * des = findVertex(dest);
 	if (src == NULL || des == NULL) return false;
@@ -151,10 +148,8 @@ bool Graph<T>::removeEdge(const T &sourc, const T &dest) {
  */
 template <class T>
 bool Vertex<T>::removeEdgeTo(Vertex<T> *d) {
-	// TODO (6 lines)
-	// HINT: use an iterator to scan the "adj" vector and then erase the edge.
 	for (size_t i = 0; i < adj.size(); i++) {
-		if (adj.at(i).dest == d) {
+		if (adj.at(i).dest->info == d->info) {
 			adj.erase(adj.begin()+i);
 			return true;
 		}
@@ -172,16 +167,15 @@ bool Vertex<T>::removeEdgeTo(Vertex<T> *d) {
  */
 template <class T>
 bool Graph<T>::removeVertex(const T &in) {
-	// TODO (10 lines)
-	// HINT: use an iterator to scan the "vertexSet" vector and then erase the vertex.
-	// HINT: take advantage of "removeEdgeTo" to remove incoming edges.
 	Vertex<T> * v = findVertex(in);
 	if (v == NULL) return false;
-	for (auto it = vertexSet.begin(); it != vertexSet.end(); it++)
-	for (int i = 0; i < vertexSet.size(); i++)
-		removeEdge(vertexSet.at(i)->info, in);
-	for (auto it = v->adj.begin(); it != v->adj.end(); it++) {
-		it = v->adj.erase(it);
+	for (size_t i = 0; i < vertexSet.size(); i++)
+		vertexSet.at(i)->removeEdgeTo(v);
+	for (auto it = vertexSet.begin(); it != vertexSet.end(); it++) {
+		if ((*it)->info == in) {
+			vertexSet.erase(it);
+			break;
+		}
 	}
 	return true;
 }
@@ -196,8 +190,11 @@ bool Graph<T>::removeVertex(const T &in) {
  */
 template <class T>
 vector<T> Graph<T>::dfs() const {
-	// TODO (7 lines)
 	vector<T> res;
+	for (Vertex<T> * vertex : vertexSet) vertex->visited = false;
+	for (Vertex<T> * vertex : vertexSet)
+		if (!vertex->visited)
+			dfsVisit(vertex, res);
 	return res;
 }
 
@@ -207,7 +204,12 @@ vector<T> Graph<T>::dfs() const {
  */
 template <class T>
 void Graph<T>::dfsVisit(Vertex<T> *v, vector<T> & res) const {
-	// TODO (7 lines)
+	v->visited = true;
+	res.push_back(v->info);
+	for (Edge<T> & edge : v->adj)
+		if (!edge.dest->visited)
+			dfsVisit(edge.dest, res);
+
 }
 
 /****************** 2b) bfs ********************/
@@ -220,10 +222,27 @@ void Graph<T>::dfsVisit(Vertex<T> *v, vector<T> & res) const {
  */
 template <class T>
 vector<T> Graph<T>::bfs(const T & source) const {
-	// TODO (22 lines)
-	// HINT: Use the flag "visited" to mark newly discovered vertices .
-	// HINT: Use the "queue<>" class to temporarily store the vertices.
 	vector<T> res;
+	queue<Vertex<T> *> to_visit;
+
+	for (Vertex<T> * vertex : vertexSet) vertex->visited = false;
+
+	to_visit.push(vertexSet.at(0));
+	vertexSet.at(0)->visited = true;
+
+	while(!to_visit.empty()) {
+		Vertex<T> * next = to_visit.front();
+		to_visit.pop();
+		res.push_back(next->info);
+
+		for(Edge<T> & edge : next->adj) {
+			if (!edge.dest->visited) {
+				to_visit.push(edge.dest);
+				edge.dest->visited = true;
+			}
+		}
+
+	}
 	return res;
 }
 
@@ -240,7 +259,28 @@ template<class T>
 vector<T> Graph<T>::topsort() const {
 	// TODO (26 lines)
 	vector<T> res;
-	return res;
+	for (Vertex<T> * vertex : vertexSet) vertex->indegree = 0;
+	for (Vertex<T> * vertex : vertexSet)
+		for (Edge<T>& edge : vertex->adj)
+			edge.dest->indegree++;
+
+	queue<Vertex<T> *> C;
+	for (Vertex<T> * vertex : vertexSet)
+		if (vertex->indegree == 0)
+			C.push(vertex);
+
+	while(!C.empty()) {
+		Vertex<T> * v = C.front();
+		C.pop();
+		res.push_back(v->info);
+		for (Edge<T>& edge : v->adj) {
+			edge.dest->indegree--;
+			if (edge.dest->indegree == 0)
+				C.push(edge.dest);
+		}
+	}
+
+	return res.size() != vertexSet.size() ? vector<T>() : res;
 }
 
 /****************** 3a) maxNewChildren (HOME WORK)  ********************/

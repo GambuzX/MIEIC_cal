@@ -233,11 +233,11 @@ bool runAllTests(int argc, char const *argv[]) {
 	s.push_back(CUTE(test_addEdge));
 	s.push_back(CUTE(test_removeEdge));
 	s.push_back(CUTE(test_removeVertex));
-	//s.push_back(CUTE(test_dfs));
-	//s.push_back(CUTE(test_removeVertex_Again));
-	//s.push_back(CUTE(test_removeEdge_Again));
-	//s.push_back(CUTE(test_bfs));
-	//s.push_back(CUTE(test_topsort));
+	s.push_back(CUTE(test_dfs));
+	s.push_back(CUTE(test_removeVertex_Again));
+	s.push_back(CUTE(test_removeEdge_Again));
+	s.push_back(CUTE(test_bfs));
+	s.push_back(CUTE(test_topsort));
 	//s.push_back(CUTE(test_maxNewChildren));
 	//s.push_back(CUTE(test_isDAG));
 
