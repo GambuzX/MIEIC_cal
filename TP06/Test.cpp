@@ -153,11 +153,11 @@ void test_floydWarshall() {
 
 bool runAllTests(int argc, char const *argv[]) {
 	cute::suite s { };
-	s.push_back(CUTE(test_dijkstra));
-	s.push_back(CUTE(test_performance_dijkstra));
+	//s.push_back(CUTE(test_dijkstra));
+	//s.push_back(CUTE(test_performance_dijkstra));
 	s.push_back(CUTE(test_bellmanFord));
-	s.push_back(CUTE(test_unweightedShortestPath));
-	s.push_back(CUTE(test_floydWarshall));
+	//s.push_back(CUTE(test_unweightedShortestPath));
+	//s.push_back(CUTE(test_floydWarshall));
 	cute::xml_file_opener xmlfile(argc, argv);
 	cute::xml_listener<cute::ide_listener<>> lis(xmlfile.out);
 	auto runner = cute::makeRunner(lis, argc, argv);

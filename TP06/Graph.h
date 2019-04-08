@@ -97,6 +97,8 @@ Edge<T>::Edge(Vertex<T> *d, double w): dest(d), weight(w) {}
 template <class T>
 class Graph {
 	vector<Vertex<T> *> vertexSet;    // vertex set
+	vector<vector<double>> minDist;
+	vector<vector<Vertex<T>*>> next;
 
 public:
 	Vertex<T> *findVertex(const T &in) const;
@@ -171,24 +173,125 @@ bool Graph<T>::addEdge(const T &sourc, const T &dest, double w) {
 
 template<class T>
 void Graph<T>::dijkstraShortestPath(const T &origin) {
-	// TODO
+	const int infinite = 99999;
+	for (Vertex<T> * vertex : vertexSet) {
+		vertex->dist = infinite;
+		vertex->path = NULL;
+		vertex->visited = false;
+		vertex->processing = false;
+	}
+
+	Vertex<T> * start = findVertex(origin);
+	start->dist = 0;
+	MutablePriorityQueue<Vertex<T>> minQueue;
+	minQueue.insert(start);
+
+	while(!minQueue.empty()) {
+
+		Vertex<T> * curr = minQueue.extractMin();
+		curr->visited = true;
+
+		for (const Edge<T> & edge : curr->adj) {
+			Vertex<T> * next = edge.dest;
+			if (next->visited) continue;
+			if (next->dist > curr->dist + edge.weight) {
+				next->dist = curr->dist + edge.weight;
+				next->path = curr;
+
+				if (!next->processing) {
+					minQueue.insert(next);
+					next->processing = true;
+				}
+				else {
+					minQueue.decreaseKey(next);
+				}
+			}
+		}
+	}
 }
 
 template<class T>
 vector<T> Graph<T>::getPath(const T &origin, const T &dest) const{
 	vector<T> res;
-	// TODO
+
+	Vertex<T> * start = findVertex(origin);
+	Vertex<T> * end = findVertex(dest);
+
+	while(end->info != start->info) {
+		res.insert(res.begin(), end->info);
+		end = end->path;
+	}
+	res.insert(res.begin(), end->info);
+
 	return res;
 }
 
 template<class T>
 void Graph<T>::unweightedShortestPath(const T &orig) {
-	// TODO
+	const int infinite = 99999;
+	for (Vertex<T> * vertex : vertexSet) {
+		vertex->dist = infinite;
+		vertex->path = NULL;
+	}
+
+	Vertex<T> * start = findVertex(orig);
+	start->dist = 0;
+	queue<Vertex<T>*> vertexQ;
+	vertexQ.push(start);
+
+	while(!vertexQ.empty()) {
+
+		Vertex<T> * curr = vertexQ.front();
+		vertexQ.pop();
+
+		for (const Edge<T> & edge : curr->adj) {
+			Vertex<T> * next = edge.dest;
+			if (next->dist == infinite) {
+				next->dist = curr->dist + 1;
+				next->path = curr;
+
+				vertexQ.push(next);
+			}
+		}
+	}
+
 }
 
 template<class T>
 void Graph<T>::bellmanFordShortestPath(const T &orig) {
-	// TODO
+	const int infinite = 99999;
+	for (Vertex<T> * vertex : vertexSet) {
+		vertex->dist = infinite;
+		vertex->path = NULL;
+	}
+
+	Vertex<T> * start = findVertex(orig);
+	start->dist = 0;
+
+	for (size_t i = 0; i < vertexSet.size()-1; i++) {
+
+		for (Vertex<T> * vertex : vertexSet) {
+			for (const Edge<T> & edge : vertex->adj) {
+				Vertex<T> * next = edge.dest;
+				if (next->dist > vertex->dist + edge.weight) {
+					next->dist = vertex->dist + edge.weight;
+					next->path = vertex;
+				}
+			}
+		}
+
+	}
+
+	for (Vertex<T> * vertex : vertexSet) {
+		for (const Edge<T> & edge : vertex->adj) {
+			Vertex<T> * next = edge.dest;
+			if (next->dist > vertex->dist + edge.weight) {
+				cout << "Cycles of negative weight" << endl;
+				return;
+			}
+		}
+	}
+
 }
 
 
@@ -196,13 +299,83 @@ void Graph<T>::bellmanFordShortestPath(const T &orig) {
 
 template<class T>
 void Graph<T>::floydWarshallShortestPath() {
-	// TODO
+	const int infinity = 999999;
+	int nVert = vertexSet.size();
+
+	minDist.resize(nVert);
+	for (auto & ele : minDist) ele.resize(nVert);
+
+	next.resize(nVert);
+	for (auto & ele : next) ele.resize(nVert);
+
+	for (int i = 0; i < nVert; i++) {
+		for (int j = 0; j < nVert; j++) {
+			minDist.at(i).at(j) = infinity;
+			next.at(i).at(j) = NULL;
+		}
+	}
+
+	for (Vertex<T> * vertex : vertexSet) {
+		for (const Edge<T> & edge : vertex->adj) {
+			int i1=-1, i2=-1;
+			for (int i = 0; i < nVert; i++)
+				if (vertexSet.at(i)->info == vertex->info)
+					i1 = i;
+			for (int i = 0; i < nVert; i++)
+				if (vertexSet.at(i)->info == edge.dest->info)
+					i2 = i;
+
+			minDist.at(i1).at(i2) = edge.weight;
+			next.at(i1).at(i2) = edge.dest;
+		}
+	}
+
+	for (int i = 0 ; i < nVert; i++) {
+		minDist.at(i).at(i) = 0;
+		next.at(i).at(i) = vertexSet.at(i);
+	}
+
+	for (int k = 0 ; k < nVert; k++) {
+		for (int i = 0; i < nVert; i++) {
+			for (int j = 0 ; j < nVert; j++) {
+				if (minDist.at(i).at(j) > minDist.at(i).at(k) + minDist.at(k).at(j)) {
+					minDist.at(i).at(j) =  minDist.at(i).at(k) + minDist.at(k).at(j);
+					next.at(i).at(j) = next.at(i).at(k);
+				}
+			}
+		}
+	}
+
 }
 
 template<class T>
 vector<T> Graph<T>::getfloydWarshallPath(const T &orig, const T &dest) const{
 	vector<T> res;
-	// TODO
+	int nVert = vertexSet.size();
+
+	Vertex<T> * v1, * v2;
+	v1 = findVertex(orig);
+	v2 = findVertex(dest);
+	if (v1 == NULL || v2 == NULL) return res;
+
+	int i1, i2;
+	for (int i = 0; i < nVert; i++)
+		if (vertexSet.at(i)->info == v1->info)
+			i1 = i;
+	for (int i = 0; i < nVert; i++)
+		if (vertexSet.at(i)->info == v2->info)
+			i2 = i;
+
+
+	if (next.at(i1).at(i2) == NULL) return res;
+	res.push_back(v1->info);
+	while(v1->info != v2->info) {
+		v1 = next.at(i1).at(i2);
+		res.push_back(v1->info);
+		for (int i = 0; i < nVert; i++)
+			if (vertexSet.at(i)->info == v1->info)
+				i1 = i;
+	}
 	return res;
 }
 
