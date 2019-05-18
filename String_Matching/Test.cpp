@@ -50,8 +50,8 @@ bool runAllTests(int argc, char const *argv[]) {
 	cute::suite s { };
 	s.push_back(CUTE(test_kmpMatcher));
 	s.push_back(CUTE(test_numStringMatching));
-	//s.push_back(CUTE(test_editDistance));
-	//s.push_back(CUTE(test_numApproximateStringMatching));
+	s.push_back(CUTE(test_editDistance));
+	s.push_back(CUTE(test_numApproximateStringMatching));
 	cute::xml_file_opener xmlfile(argc, argv);
 	cute::xml_listener<cute::ide_listener<>> lis(xmlfile.out);
 	auto runner = cute::makeRunner(lis, argc, argv);
