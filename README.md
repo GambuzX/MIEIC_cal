@@ -7,7 +7,7 @@ Exercises solved during practical classes for the CAL curricular unit.
 
 <br>
 
-**Final Grade: ??**
+**Final Grade: 19**
 
 ### Technologies and Software Used
 * C++
